@@ -4,7 +4,6 @@ namespace h4kuna\Fio;
 
 use h4kuna\Fio\Exceptions\ServiceUnavailable;
 use h4kuna\Fio\Response\Read\TransactionList;
-use h4kuna\Fio\Utils;
 
 /**
  * Read from information Fio account
@@ -18,9 +17,10 @@ class FioRead extends Fio
 	/** @var Request\Read\IReader */
 	private $readerFactory;
 
-	public function __construct(Request\IQueue $queue, Account\FioAccount $account, Request\Read\IReader $readerFactory)
+
+	public function __construct(Request\IQueue $queue, Account\FioAccount $account, Request\Read\IReader $readerFactory, Utils\Log $log = null)
 	{
-		parent::__construct($queue, $account);
+		parent::__construct($queue, $account, $log);
 		$this->readerFactory = $readerFactory;
 	}
 
@@ -100,6 +100,9 @@ class FioRead extends Fio
 	{
 		$token = $this->account->getToken();
 		$this->requestUrl = self::REST_URL . sprintf($apiUrl, $token, ...$args);
+		if ($this->log->isDry()) {
+			return '';
+		}
 		return $this->queue->download($token, $this->requestUrl);
 	}
 

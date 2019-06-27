@@ -26,17 +26,36 @@ class Fio
 	/** @var Account\FioAccount */
 	protected $account;
 
+	/** @var Utils\Log */
+	protected $log;
 
-	public function __construct(Request\IQueue $queue, Account\FioAccount $account)
+
+	public function __construct(Request\IQueue $queue, Account\FioAccount $account, Utils\Log $log = null)
 	{
 		$this->queue = $queue;
 		$this->account = $account;
+		if ($log === null) {
+			$log = new Utils\Log(Utils\Log::MODE_DISABLE);
+		}
+		$this->log = $log;
 	}
 
 
 	public function getAccount(): Account\FioAccount
 	{
 		return $this->account;
+	}
+
+
+	public function setLog(Utils\Log $log): void
+	{
+		$this->log = $log;
+	}
+
+
+	public function getLog(): Utils\Log
+	{
+		return $this->log;
 	}
 
 }

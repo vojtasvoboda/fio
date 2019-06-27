@@ -22,10 +22,10 @@ class XMLFile
 	}
 
 
-	public function setData(Payment\Property $data): self
+	public function setData(Payment\Property $data, bool $indent = false): self
 	{
 		if ($this->isReady() === false) {
-			$this->createEmptyXml();
+			$this->createEmptyXml($indent);
 		}
 		return $this->setBody($data);
 	}
@@ -60,10 +60,11 @@ class XMLFile
 	}
 
 
-	private function createEmptyXml(): void
+	private function createEmptyXml(bool $indent): void
 	{
 		$this->xml = new XMLWriter;
 		$this->xml->openMemory();
+		$indent && $this->xml->setIndent(true);
 		$this->xml->startDocument('1.0', 'UTF-8');
 		$this->xml->startElement('Import');
 		$this->xml->writeAttribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');

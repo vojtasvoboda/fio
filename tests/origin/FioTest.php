@@ -13,6 +13,7 @@ if ($accounts === false) {
 }
 
 $fioFactory = new \h4kuna\Fio\Utils\FioFactory($accounts);
+$fioFactory->setLogMode(\h4kuna\Fio\Utils\Log::MODE_DRY);
 $fioRead = $fioFactory->createFioRead();
 
 foreach ($fioRead->movements('-1 month') as $transaction) {
@@ -28,13 +29,12 @@ foreach ($fioRead->movements('-1 month') as $transaction) {
 
 // blocation is per token
 $fioPay = $fioFactory->createFioPay();
-$log = $fioPay->enableLog();
+$fioPay->getLog()->enableAll();
 //$national = $fioPay->createNational(100, '2600267402/2010');
 //$response = $fioPay->send($national);
 
 $euro = $fioPay->createEuro(100, 'EE957700771001355096/LHVBEE22XXX', 'Coinbase UK, Ltd.');
 $response = $fioPay->send($euro);
 
-dump($log->getFilename());
-echo($log->getContent());
+echo($response->getRequest()->getContent());
 dumpe($response->isOk(), $response->status(), $response->code(), $response->errorMessages());

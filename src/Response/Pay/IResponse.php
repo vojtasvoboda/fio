@@ -2,6 +2,8 @@
 
 namespace h4kuna\Fio\Response\Pay;
 
+use h4kuna\Fio\Request\Log\Request;
+
 interface IResponse
 {
 
@@ -15,6 +17,12 @@ interface IResponse
 
 
 	function errorMessages(): array;
+
+
+	function setRequest(Request $request): void;
+
+
+	function getRequest(): Request;
 
 
 	function __toString();

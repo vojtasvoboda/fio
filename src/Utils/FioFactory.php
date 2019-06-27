@@ -21,6 +21,9 @@ class FioFactory
 	/** @var string */
 	protected $temp;
 
+	/** @var Log */
+	private $log;
+
 
 	public function __construct(array $accounts, string $transactionClass = Transaction::class, string $temp = '')
 	{
@@ -28,6 +31,21 @@ class FioFactory
 		$this->accountCollection = $this->createAccountCollection($accounts);
 		$this->queue = $this->createQueue();
 		$this->transactionClass = $transactionClass;
+	}
+
+
+	public function setLogMode(int $mode)
+	{
+		$this->log = new Log($mode);
+	}
+
+
+	protected function getLog()
+	{
+		if ($this->log === null) {
+			$this->log = new Log(Log::MODE_DISABLE);
+		}
+		return $this->log;
 	}
 
 
@@ -43,7 +61,7 @@ class FioFactory
 
 	public function createFioRead(string $name = ''): Fio\FioRead
 	{
-		return new Fio\FioRead($this->queue(), $this->accountCollection()->account($name), $this->createReader());
+		return new Fio\FioRead($this->queue(), $this->accountCollection()->account($name), $this->createReader(), $this->getLog());
 	}
 
 
@@ -54,7 +72,7 @@ class FioFactory
 	public function createFioPay(string $name = ''): Fio\FioPay
 	{
 		return new Fio\FioPay(
-			$this->queue(), $this->accountCollection()->account($name), $this->createXmlFile()
+			$this->queue(), $this->accountCollection()->account($name), $this->createXmlFile(), $this->getLog()
 		);
 	}
 

@@ -4,7 +4,6 @@ namespace h4kuna\Fio;
 
 use h4kuna\Fio\Account\Bank;
 use h4kuna\Fio\Exceptions\InvalidArgument;
-use h4kuna\Fio\Request\Log;
 use h4kuna\Fio\Request\Pay;
 use h4kuna\Fio\Response\Pay\IResponse;
 
@@ -26,20 +25,11 @@ class FioPay extends Fio
 	/** @var Pay\XMLFile */
 	private $xmlFile;
 
-	/** @var Log */
-	private $log;
 
-
-	public function __construct(Request\IQueue $queue, Account\FioAccount $account, Pay\XMLFile $xmlFile)
+	public function __construct(Request\IQueue $queue, Account\FioAccount $account, Pay\XMLFile $xmlFile, Utils\Log $log = null)
 	{
-		parent::__construct($queue, $account);
+		parent::__construct($queue, $account, $log);
 		$this->xmlFile = $xmlFile;
-	}
-
-
-	public function enableLog(): Log
-	{
-		return $this->log = new Log();
 	}
 
 
@@ -101,7 +91,7 @@ class FioPay extends Fio
 	 */
 	public function addPayment(Pay\Payment\Property $property)
 	{
-		$this->xmlFile->setData($property);
+		$this->sendXmlData($property);
 		return $this;
 	}
 
@@ -112,15 +102,12 @@ class FioPay extends Fio
 	public function send($filename = null): IResponse
 	{
 		if ($filename instanceof Pay\Payment\Property) {
-			$this->xmlFile->setData($filename);
+			$this->sendXmlData($filename);
 		}
 
 		if ($this->xmlFile->isReady()) {
 			$this->setUploadExtension('xml');
-			$filename = $this->xmlFile->getPathname($this->log !== null);
-			if ($this->log !== null) {
-				$this->log->setFilename($filename);
-			}
+			$filename = $this->xmlFile->getPathname($this->log->isLogMode());
 		} elseif (is_string($filename) && is_file($filename)) {
 			$this->setUploadExtension(pathinfo($filename, PATHINFO_EXTENSION));
 		} else {
@@ -133,8 +120,18 @@ class FioPay extends Fio
 			'token' => $token,
 			'lng' => $this->language,
 		];
+		$url = self::getUrl();
 
-		return $this->response = $this->queue->upload(self::getUrl(), $token, $post, $filename);
+		$logRequest = $this->log->createRequest($url, $token, $post, $filename);
+
+		if ($this->log->isDry()) {
+			$response = $this->log->createResponse();
+		} else {
+			$response = $this->queue->upload($url, $token, $post, $filename);
+		}
+		$response->setRequest($logRequest);
+
+		return $this->response = $response;
 	}
 
 
@@ -158,6 +155,12 @@ class FioPay extends Fio
 	private function setUploadExtension(string $extension): void
 	{
 		$this->uploadExtension = InvalidArgument::checkIsInList(strtolower($extension), self::EXTENSIONS);
+	}
+
+
+	private function sendXmlData(Pay\Payment\Property $property): void
+	{
+		$this->xmlFile->setData($property, $this->log->isLogMode());
 	}
 
 }

@@ -38,6 +38,19 @@ class FioPayTest extends Tester\TestCase
 	}
 
 
+	public function testLog()
+	{
+		$this->fioPay->getLog()->enableAll();
+		$payment1 = $this->fioPay->createNational(100, '24301556/0654')
+			->setDate('2016-01-12');
+		$response = $this->fioPay->send($payment1);
+
+		Testinium\File::save('payment/multi-pay-new-line.xml', $response->getRequest()->getContent());
+		Assert::same(Testinium\File::load('payment/multi-pay-new-line.xml'), $response->getRequest()->getContent());
+		Assert::same($response->getRequest()->url, 'https://www.fio.cz/ib_api/rest/import/');
+	}
+
+
 	protected function setUp()
 	{
 		$this->fioPay = $this->fioFactory->createFioPay();

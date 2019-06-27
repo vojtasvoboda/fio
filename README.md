@@ -195,3 +195,30 @@ foreach($pamentsRows as $row) {
 }
 $fioPay->send();
 ```
+
+## Logging
+Both classes FioPay and FioRead have method getLog() whose return [Utils\Log](src/Utils/Log.php).
+ 
+You can enable dry mode. This mode does not send request on api.
+```php
+$fioPay->getLog()->enableDry();
+```
+
+Save payment xml on filesystem and read it.
+```php
+$fioPay->getLog()->enableLogging();
+```
+
+Enable all above
+```php
+$fioPay->getLog()->enableAll();
+```
+
+### What is in log?
+
+If you get Response, here is method getRequest() return [Request](src/Request/Log/Request.php) class. 
+
+```php
+$response = $fioPay->send();
+$response->getRequest()->getContent(); // and few public properties
+```

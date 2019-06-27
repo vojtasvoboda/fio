@@ -1,6 +1,10 @@
 # Fio
 
-### v 2.0
+### v 2.0.1
+- add logging request and response for pay
+- removed old Log class
+
+### v 2.0.0
 - support only php 7.1+
 - exceptions move and rename from `h4kuna\Fio\<name>Exception` to `h4kuna\Fio\Exceptions\<name>`
 - add type hint for methods and parameters

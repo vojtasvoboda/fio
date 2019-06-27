@@ -2,6 +2,7 @@
 
 namespace h4kuna\Fio\Response\Pay;
 
+use h4kuna\Fio\Request\Log\Request;
 use SimpleXMLElement;
 
 class XMLResponse implements IResponse
@@ -9,6 +10,9 @@ class XMLResponse implements IResponse
 
 	/** @var SimpleXMLElement */
 	private $xml;
+
+	/** @var Request */
+	private $request;
 
 
 	public function __construct(string $xml)
@@ -20,6 +24,18 @@ class XMLResponse implements IResponse
 	public function isOk(): bool
 	{
 		return $this->status() === 'ok' && $this->code() === 0;
+	}
+
+
+	public function getRequest(): Request
+	{
+		return $this->request;
+	}
+
+
+	public function setRequest(Request $request): void
+	{
+		$this->request = $request;
 	}
 
 
